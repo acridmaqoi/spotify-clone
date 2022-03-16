@@ -23,7 +23,6 @@ function App() {
       });
 
       spotify.setAccessToken(_token);
-
       spotify.getMe().then((user) => {
         dispatch({
           type: "SET_USER",
@@ -33,7 +32,11 @@ function App() {
     }
   }, []);
 
-  return <div className="App">{token ? <Player /> : <Login />}</div>;
+  return (
+    <div className="App">
+      {token ? <Player spotify={spotify} /> : <Login />}
+    </div>
+  );
 }
 
 export default App;
