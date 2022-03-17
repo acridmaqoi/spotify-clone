@@ -7,12 +7,29 @@ import ShuffleIcon from "@material-ui/icons/Shuffle";
 import SkipNextIcon from "@material-ui/icons/SkipNext";
 import SkipPrevious from "@material-ui/icons/SkipPrevious";
 import VolumeDownIcon from "@material-ui/icons/VolumeDown";
-import React from "react";
+import React, { useEffect } from "react";
 import { useDataLayerValue } from "./DataLayer";
 import "./Footer.css";
 
-function Footer() {
+function Footer({ spotify }) {
   const [{ item }, dispatch] = useDataLayerValue();
+
+  useEffect(() => {
+    // ensure player state is synced if song is changed by other client
+    spotify.getMyCurrentPlaybackState().then((r) => {
+      console.log(r);
+
+      dispatch({
+        type: "SET_PLAYING",
+        playing: r.is_playing,
+      });
+
+      dispatch({
+        type: "SET_ITEM",
+        item: r.item,
+      });
+    });
+  }, [spotify]);
 
   return (
     <div className="footer">
