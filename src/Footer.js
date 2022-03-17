@@ -1,18 +1,19 @@
 import Grid from "@material-ui/core/Grid";
 import Slider from "@material-ui/core/Slider";
+import PauseCircleOutlineIcon from "@material-ui/icons/PauseCircleOutline";
 import PlayCircleOutlineIcon from "@material-ui/icons/PlayCircleOutline";
 import PlaylistPlayIcon from "@material-ui/icons/PlaylistPlay";
 import RepeatIcon from "@material-ui/icons/Repeat";
 import ShuffleIcon from "@material-ui/icons/Shuffle";
 import SkipNextIcon from "@material-ui/icons/SkipNext";
-import SkipPrevious from "@material-ui/icons/SkipPrevious";
+import SkipPreviousIcon from "@material-ui/icons/SkipPrevious";
 import VolumeDownIcon from "@material-ui/icons/VolumeDown";
 import React, { useEffect } from "react";
 import { useDataLayerValue } from "./DataLayer";
 import "./Footer.css";
 
 function Footer({ spotify }) {
-  const [{ item }, dispatch] = useDataLayerValue();
+  const [{ item, playing }, dispatch] = useDataLayerValue();
 
   useEffect(() => {
     // ensure player state is synced if song is changed by other client
@@ -30,6 +31,50 @@ function Footer({ spotify }) {
       });
     });
   }, [spotify]);
+
+  const handlePlayPause = () => {
+    if (playing) {
+      spotify.pause();
+      dispatch({
+        type: "SET_PLAYING",
+        playing: false,
+      });
+    } else {
+      spotify.play();
+      dispatch({
+        type: "SET_PLAYING",
+        playing: true,
+      });
+    }
+  };
+
+  const skipNext = () => {
+    spotify.skipToNext();
+    spotify.getMyCurrentPlayingTrack().then((r) => {
+      dispatch({
+        type: "SET_ITEM",
+        item: r.item,
+      });
+      dispatch({
+        type: "SET_PLAYING",
+        playing: true,
+      });
+    });
+  };
+
+  const skipPrevious = () => {
+    spotify.skipToPrevious();
+    spotify.getMyCurrentPlayingTrack().then((r) => {
+      dispatch({
+        type: "SET_ITEM",
+        item: r.item,
+      });
+      dispatch({
+        type: "SET_PLAYING",
+        playing: true,
+      });
+    });
+  };
 
   return (
     <div className="footer">
@@ -54,9 +99,21 @@ function Footer({ spotify }) {
 
       <div className="footer__center">
         <ShuffleIcon className="footer__green" />
-        <SkipPrevious className="footer__icon" />
-        <PlayCircleOutlineIcon fontSize="large" className="footer__icon" />
-        <SkipNextIcon className="footer__icon" />
+        <SkipPreviousIcon onClick={skipNext} className="footer__icon" />
+        {playing ? (
+          <PauseCircleOutlineIcon
+            onClick={handlePlayPause}
+            fontSize="large"
+            className="footer__icon"
+          />
+        ) : (
+          <PlayCircleOutlineIcon
+            onClick={handlePlayPause}
+            fontSize="large"
+            className="footer__icon"
+          />
+        )}
+        <SkipNextIcon onClick={skipPrevious} className="footer__icon" />
         <RepeatIcon className="footer__green" />
       </div>
 
@@ -69,7 +126,7 @@ function Footer({ spotify }) {
             <VolumeDownIcon />
           </Grid>
           <Grid item xs>
-            <Slider />
+            <Slider aria-labelledby="continuous-slider" />
           </Grid>
         </Grid>
       </div>
