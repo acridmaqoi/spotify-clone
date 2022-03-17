@@ -8,21 +8,31 @@ import SkipNextIcon from "@material-ui/icons/SkipNext";
 import SkipPrevious from "@material-ui/icons/SkipPrevious";
 import VolumeDownIcon from "@material-ui/icons/VolumeDown";
 import React from "react";
+import { useDataLayerValue } from "./DataLayer";
 import "./Footer.css";
 
 function Footer() {
+  const [{ item }, dispatch] = useDataLayerValue();
+
   return (
     <div className="footer">
       <div className="footer__left">
         <img
           className="footer__albumLogo"
-          src="https://upload.wikimedia.org/wikipedia/en/2/2e/Usher-yeah.jpg"
-          alt=""
+          src={item?.album.images[0].url}
+          alt={item?.name}
         />
-        <div className="footer__songInfo">
-          <h4>Yeah!</h4>
-          <p>Usher</p>
-        </div>
+        {item ? (
+          <div className="footer__songInfo">
+            <h4>{item?.name}</h4>
+            <p>{item.artists.map((artist) => artist.name).join(", ")}</p>
+          </div>
+        ) : (
+          <div className="footer__songInfo">
+            <h4>No song is playing</h4>
+            <p>...</p>
+          </div>
+        )}
       </div>
 
       <div className="footer__center">
